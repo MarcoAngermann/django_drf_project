@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from market_app.models import Market, Seller
+from market_app.models import Market, Seller, Product
 
 def validate_no_x(value):
         errors = []
@@ -60,3 +60,44 @@ class SellerCreateSerializer(serializers.Serializer):
         markets = Market.objects.filter(id__in=market_ids)
         seller.markets.set(markets)
         return seller
+    
+
+from rest_framework import serializers
+from market_app.models import Market, Product
+
+from rest_framework import serializers
+from market_app.models import Market, Product, Seller
+
+class ProductDetailSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=255)
+    description = serializers.CharField()
+    market = serializers.IntegerField(write_only=True)
+    seller = serializers.IntegerField(write_only=True)  # Neues Feld für Seller ID
+    price = serializers.DecimalField(max_digits=50, decimal_places=2)
+
+    def validate_market(self, value):
+        if not Market.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Invalid market id")
+        return value
+    
+    def validate_seller(self, value):
+        if not Seller.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Invalid seller id")
+        return value
+    
+    def create(self, validated_data):
+        market_id = validated_data.pop('market')
+        seller_id = validated_data.pop('seller')
+        product = Product.objects.create(market_id=market_id, seller_id=seller_id, **validated_data)
+        return product
+
+
+
+{ 
+    "name": "Produktname", 
+    "description": "Produktbeschreibung", 
+    "market": 2, 
+    "seller": 1,
+    "price": 9.99 
+}
