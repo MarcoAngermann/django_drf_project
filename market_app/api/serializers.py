@@ -37,10 +37,13 @@ class SellerSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True,
         source='markets')
-        
+    market_count = serializers.SerializerMethodField()
     class Meta:
         model = Seller
-        exclude = []
+        fields = ['id', 'name', 'market_count', 'contact_info', 'markets', 'market_ids']
+    
+    def get_market_count(self, obj):
+        return obj.markets.count()
 
 class SellerDetailSerializer(serializers.ModelSerializer):
         class Meta:
