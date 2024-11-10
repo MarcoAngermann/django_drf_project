@@ -91,13 +91,22 @@ class ProductDetailSerializer(serializers.Serializer):
         seller_id = validated_data.pop('seller')
         product = Product.objects.create(market_id=market_id, seller_id=seller_id, **validated_data)
         return product
+    
+    def update(self,instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.price = validated_data.get('price', instance.price)
+        instance.market = validated_data.get('market', instance.market)
+        instance.seller = validated_data.get('seller', instance.seller)
+        instance.save()
+        return instance
 
 
 
-{ 
-    "name": "Produktname", 
-    "description": "Produktbeschreibung", 
-    "market": 2, 
-    "seller": 1,
-    "price": 9.99 
-}
+# { 
+#     "name": "Produktname", 
+#     "description": "Produktbeschreibung", 
+#     "market": 2, 
+#     "seller": 1,
+#     "price": 9.99 
+# }
