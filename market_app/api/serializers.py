@@ -67,6 +67,11 @@ class SellerSerializer(serializers.ModelSerializer):
     
     def get_market_count(self, obj):
         return obj.markets.count()
+    
+class SellerListSerializer(SellerSerializer, serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Seller
+        fields = ['url', 'name', 'market_ids', 'market_count', 'contact_info']
 
 # class SellerDetailSerializer(serializers.ModelSerializer):
 #         class Meta:
@@ -98,6 +103,11 @@ class SellerSerializer(serializers.ModelSerializer):
 #         seller.markets.set(markets)
 #         return seller
 
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     # id = serializers.IntegerField(read_only=True)

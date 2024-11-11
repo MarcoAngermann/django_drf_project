@@ -1,10 +1,42 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import MarketSerializer, ProductDetailSerializer, SellerSerializer, MarketHyperlinkedSerializer
+from django.shortcuts import get_object_or_404
+from .serializers import MarketSerializer, ProductDetailSerializer, SellerSerializer, SellerListSerializer, ProductSerializer
 from market_app.models import Market, Seller, Product
 from rest_framework import generics
+from rest_framework import viewsets
 from rest_framework import mixins
+
+class ProductsViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+# class ProductsViewSetOld(viewsets.ViewSet):
+#     queryset = Product.objects.all()
+#     def list(self, request):
+#         serializer = ProductSerializer(self.queryset, many=True)
+#         return Response(serializer.data)
+
+#     def retrieve(self, request, pk=None):
+#         user = get_object_or_404(self.queryset, pk=pk)
+#         serializer = ProductSerializer(user)
+#         return Response(serializer.data)
+    
+#     def create(self, request):
+#         serializer = ProductSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def destroy(self, request, pk=None):
+#         product = get_object_or_404(self.queryset, pk=pk)
+#         serializer = ProductSerializer(product)
+#         product.delete()
+#         return Response(serializer.data)
+
 
 class MarketsView(generics.ListCreateAPIView): 
     queryset = Market.objects.all()
@@ -16,13 +48,18 @@ class MarketDetails(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MarketSerializer
 
 
-class SellerOfMarketList(generics.ListAPIView):
-    serializer_class = SellerSerializer
+class SellerOfMarketList(generics.ListCreateAPIView):
+    serializer_class = SellerListSerializer
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         market = Market.objects.get(pk = pk)
         return market.sellers.all()
+    
+    def perform_create(self, serializer):
+        pk = self.kwargs.get('pk')
+        market = Market.objects.get(pk = pk)
+        serializer.save(markets=[market])
 
 
 
