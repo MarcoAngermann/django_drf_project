@@ -14,6 +14,9 @@ from market_app.models import Market, Seller, Product
 #         return value
 
 class MarketSerializer(serializers.ModelSerializer):
+
+    sellers = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='seller_single') 
+
     class Meta:
         model = Market
         fields = '__all__'
@@ -30,6 +33,12 @@ class MarketSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(errors)
         return value
     
+class MarketHyperlinkedSerializer(MarketSerializer,serializers.HyperlinkedModelSerializer):
+    sellers = None
+    class Meta:
+        model = Market
+        exclude = []
+    
 class SellerSerializer(serializers.ModelSerializer):
     markets = MarketSerializer(many=True, read_only=True)
     market_ids = serializers.PrimaryKeyRelatedField(
@@ -45,10 +54,10 @@ class SellerSerializer(serializers.ModelSerializer):
     def get_market_count(self, obj):
         return obj.markets.count()
 
-class SellerDetailSerializer(serializers.ModelSerializer):
-        class Meta:
-            model = Seller
-            fields = '__all__'
+# class SellerDetailSerializer(serializers.ModelSerializer):
+#         class Meta:
+#             model = Seller
+#             fields = '__all__'
 
 # class SellerDetailSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)
